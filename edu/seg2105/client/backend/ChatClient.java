@@ -27,6 +27,9 @@ public class ChatClient extends AbstractClient
    * the display method in the client.
    */
   ChatIF clientUI; 
+  
+  String host = "";
+  int port;
 
   
   //Constructors ****************************************************
@@ -45,6 +48,7 @@ public class ChatClient extends AbstractClient
     super(host, port); //Call the superclass constructor
     this.clientUI = clientUI;
     openConnection();
+
   }
 
   
@@ -57,18 +61,16 @@ public class ChatClient extends AbstractClient
    */
   public void handleMessageFromServer(Object msg) 
   {
-    clientUI.display(msg.toString());
-    
-    
+	  clientUI.display(msg.toString());
   }
+
 
   /**
    * This method handles all data coming from the UI            
    *
    * @param message The message from the UI.    
    */
-  public void handleMessageFromClientUI(String message)
-  {
+  public void handleMessageFromClientUI(String message){
     try
     {
       sendToServer(message);
@@ -80,6 +82,16 @@ public class ChatClient extends AbstractClient
       quit();
     }
   }
+  
+  //If the connection with the server is cleanly terminated
+  public void connectionClosed() {
+	  System.out.print("The server has been disconnected");
+  }
+  
+  	//IF the connection with the server is unexpectedly interrupted
+	protected void connectionException(Exception exception) {
+		System.out.println("The connection with the server has been unexpectedly interrupt !");
+	}
   
   /**
    * This method terminates the client.

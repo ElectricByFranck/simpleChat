@@ -1,8 +1,8 @@
 package edu.seg2105.edu.server.backend;
+import edu.seg2105.server.common.*;
 // This file contains material supporting section 3.7 of the textbook:
 // "Object Oriented Software Engineering" and is issued under the open-source
 // license found at www.lloseng.com 
-
 
 import ocsf.server.*;
 
@@ -18,11 +18,13 @@ import ocsf.server.*;
 public class EchoServer extends AbstractServer 
 {
   //Class variables *************************************************
+	
+	ChatIF serverUI;
   
   /**
    * The default port to listen on.
    */
-  final public static int DEFAULT_PORT = 5555;
+  final public static int DEFAULT_PORT = 55;
   
   //Constructors ****************************************************
   
@@ -45,13 +47,12 @@ public class EchoServer extends AbstractServer
    * @param msg The message received from the client.
    * @param client The connection from which the message originated.
    */
-  public void handleMessageFromClient
-    (Object msg, ConnectionToClient client)
-  {
+  public void handleMessageFromClient(Object msg, ConnectionToClient client) {
     System.out.println("Message received: " + msg + " from " + client);
     this.sendToAllClients(msg);
   }
-    
+  
+  
   /**
    * This method overrides the one in the superclass.  Called
    * when the server starts listening for connections.
@@ -72,6 +73,14 @@ public class EchoServer extends AbstractServer
       ("Server has stopped listening for connections.");
   }
   
+	protected void clientConnected(ConnectionToClient client) {
+		System.out.println("The Client is connected on port number" + getPort());
+	}
+	
+	synchronized protected void clientDisconnected(ConnectionToClient client) {
+		System.out.println("The Client is disconnected from port number" + getPort());
+	}
+  
   
   //Class methods ***************************************************
   
@@ -84,7 +93,7 @@ public class EchoServer extends AbstractServer
    */
   public static void main(String[] args) 
   {
-    int port = 0; //Port to listen on
+	  int port = 0; //Port to listen on
 
     try
     {
@@ -92,7 +101,7 @@ public class EchoServer extends AbstractServer
     }
     catch(Throwable t)
     {
-      port = DEFAULT_PORT; //Set port to 5555
+     	port = DEFAULT_PORT; //Set port to 5555
     }
 	
     EchoServer sv = new EchoServer(port);
@@ -100,10 +109,11 @@ public class EchoServer extends AbstractServer
     try 
     {
       sv.listen(); //Start listening for connections
+
     } 
     catch (Exception ex) 
     {
-      System.out.println("ERROR - Could not listen for clients!");
+      System.out.println("ERROR - Could not listen for clients! " + ex.getMessage());
     }
   }
 }
