@@ -5,6 +5,7 @@ import edu.seg2105.server.common.*;
 // license found at www.lloseng.com 
 
 import ocsf.server.*;
+import java.io.*;
 
 /**
  * This class overrides some of the methods in the abstract 
@@ -74,7 +75,9 @@ public class EchoServer extends AbstractServer
   }
   
 	protected void clientConnected(ConnectionToClient client) {
-		System.out.println("The Client is connected on port number" + getPort());
+		System.out.println("The Client is connected on port number : " + getPort());
+		try {client.sendToClient("Welcome to my chat server !");}
+		catch(IOException e) {System.out.println("Failed to send welcome message: " + e.getMessage());}
 	}
 	
 	synchronized protected void clientDisconnected(ConnectionToClient client) {

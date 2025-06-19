@@ -63,6 +63,10 @@ public class ChatClient extends AbstractClient
   {
 	  clientUI.display(msg.toString());
   }
+  
+	protected void connectionEstablished() {
+		System.out.println("The connection with the server has been made !");
+	}
 
 
   /**

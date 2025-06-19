@@ -15,6 +15,8 @@ public class ServerConsole implements ChatIF {
 	  
 	  //Scanner to read from the console
 	  Scanner fromConsole; 
+	  
+	  public static int port;
 	
 
 	  //This method overrides the method in the ChatIF interface.  It displays a message onto the screen.
@@ -23,8 +25,8 @@ public class ServerConsole implements ChatIF {
 	  }
 	  
 	  
-	  public void serverConsole(int port) {
-		  
+	  public ServerConsole(int port) {
+		  this.port = port;
 		  try { server = new EchoServer(port);}
 		  catch(Exception e) {System.out.println("Something went wrong while listement to port :"+ port + e.getMessage());System.exit(1); }
 		  
@@ -52,7 +54,7 @@ public class ServerConsole implements ChatIF {
 	        message = fromConsole.nextLine();
 	        
 	        if(!message.startsWith("#")){
-		        server.sendToAllClients("SERVER>" + message);
+		        server.sendToAllClients("SERVER MSG>" + message);
 		        display(message);
 	        }
 	        
@@ -100,6 +102,11 @@ public class ServerConsole implements ChatIF {
 	        ("Unexpected error while reading from console!");
 	    }
 	  }
-
+	  
+	  public static void main(String[] args) {
+		  ServerConsole chat = new ServerConsole(port);
+		  chat.accept();
+		  
+	  }
 
 }
