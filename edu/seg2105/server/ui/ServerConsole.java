@@ -16,18 +16,23 @@ public class ServerConsole implements ChatIF {
 	  //Scanner to read from the console
 	  Scanner fromConsole; 
 	  
-	  public static int port;
+	  private int port = 55;
 	
 
 	  //This method overrides the method in the ChatIF interface.  It displays a message onto the screen.
 	  public void display(String message) {
-		  System.out.println("SERVER MSG> " + message);
+		  System.out.println("CLIENT MSG> " + message);
 	  }
 	  
 	  
 	  public ServerConsole(int port) {
 		  this.port = port;
-		  try { server = new EchoServer(port);}
+		  
+		  // Start listening for client connections
+		  try { server = new EchoServer(port); server.listen();
+		  System.out.println("Server started >>>");
+		  }
+		  
 		  catch(Exception e) {System.out.println("Something went wrong while listement to port :"+ port + e.getMessage());System.exit(1); }
 		  
 		    // Create scanner object to read from console
@@ -54,7 +59,7 @@ public class ServerConsole implements ChatIF {
 	        message = fromConsole.nextLine();
 	        
 	        if(!message.startsWith("#")){
-		        server.sendToAllClients("SERVER MSG>" + message);
+		        server.sendToAllClients(message);
 		        display(message);
 	        }
 	        
@@ -104,6 +109,7 @@ public class ServerConsole implements ChatIF {
 	  }
 	  
 	  public static void main(String[] args) {
+		  int port = 55;
 		  ServerConsole chat = new ServerConsole(port);
 		  chat.accept();
 		  

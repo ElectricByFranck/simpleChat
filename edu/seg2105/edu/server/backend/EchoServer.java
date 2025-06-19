@@ -61,7 +61,7 @@ public class EchoServer extends AbstractServer
   protected void serverStarted()
   {
     System.out.println
-      ("Server listening for connections on port " + getPort());
+      ("Server is now listening on port : " + getPort());
   }
   
   /**
