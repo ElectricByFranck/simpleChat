@@ -88,8 +88,9 @@ public class ClientConsole implements ChatIF
         message = fromConsole.nextLine();
         
         	if(!message.startsWith("#")) {
-        		client.handleMessageFromClientUI(message);
-        		System.out.println("CLIENT MSG> "+message);
+        		//client.handleMessageFromClientUI(message);
+        		display(message);
+        		//System.out.println("CLIENT MSG> "+message);
         	}
         
         	//Causes the client to terminate gracefully.
@@ -155,7 +156,7 @@ public class ClientConsole implements ChatIF
    */
   public void display(String message) 
   {
-    System.out.println("> " + message);
+    System.out.println("SERVER MSG> " + message);
   }
 
   
