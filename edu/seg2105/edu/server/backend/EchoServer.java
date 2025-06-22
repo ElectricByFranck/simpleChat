@@ -6,8 +6,6 @@ import edu.seg2105.server.common.*;
 
 import ocsf.server.*;
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 
 
 
@@ -29,7 +27,7 @@ public class EchoServer extends AbstractServer
   /**
    * The default port to listen on.
    */
-  final public static int DEFAULT_PORT = 55;
+  final public static int DEFAULT_PORT = 5555;
 
   
   //Constructors ****************************************************
@@ -56,14 +54,18 @@ public class EchoServer extends AbstractServer
   
   @Override
   public void handleMessageFromClient(Object msg, ConnectionToClient client) {
-      String message = msg.toString().trim();
+
+      String message = msg.toString();
+      String loginId = (String)client.getInfo("loginId");
+      
+      System.out.println("Message received: " + message + " from " + (loginId != null ? loginId : "null"));
 
       // Check if client is not yet identified
-      if (client.getInfo("loginId") == null) {
+      if (loginId == null) {
           if (message.startsWith("#login <") && message.endsWith(">")) {
-              String loginId = message.substring(8, message.length() - 1).trim();
+              String actualLoginId = message.substring(8, message.length() - 1).trim();
 
-              if (loginId.isEmpty()) {
+              if (actualLoginId.isEmpty()) {
                   try {
                       client.sendToClient("Login ID cannot be empty. Connection closing.");
                       client.close();
@@ -74,10 +76,12 @@ public class EchoServer extends AbstractServer
               }
 
               // Set login info
-              client.setInfo("loginId", loginId);
-              System.out.println(loginId + " has logged on.");
+              client.setInfo("loginId", actualLoginId);
+              System.out.println(actualLoginId + " has logged on.");
+              
               try {
-                  client.sendToClient("Welcome " + loginId + "!");
+                  //client.sendToClient("Welcome " + actualLoginId + "!");
+                  client.sendToClient(actualLoginId + " has logged on.");
               } catch (IOException e) {
                   System.out.println("Failed to send welcome message: " + e.getMessage());
               }
@@ -94,58 +98,9 @@ public class EchoServer extends AbstractServer
       }
 
       // Normal message handling
-      String loginId = (String) client.getInfo("loginId");
-      System.out.println("Message received: " + message + " from " + loginId);
+      //System.out.println("Message received: " + message + " from " + loginId);
       sendToAllClients(loginId + "> " + message);
   }
-
-  /*
-  @Override
-  public void handleMessageFromClient(Object msg, ConnectionToClient client) {
-      String message = msg.toString();
-
-      // Check if client is not logged in
-      if (client.getInfo("loginId") == null) {
-          if (message.startsWith("#login ")) {
-              String loginId = message.substring(7).trim();
-
-              if (loginId.isEmpty()) {
-                  try {
-                      client.sendToClient("Login ID cannot be empty. Connection terminated.");
-                      client.close();
-                  } catch (IOException e) {
-                      System.out.println("Issues occur during closing the connection: " + e.getMessage());
-                  }
-                  return;
-              }
-
-              // Save login ID directly in the client's info
-              client.setInfo("loginId", loginId);
-              System.out.println("Client logged in with the ID: " + loginId);
-
-              try {
-                  client.sendToClient("Welcome " + loginId + "!");
-              } catch (IOException e) {
-                  System.out.println("Error while sending the welcome message: " + e.getMessage());
-              }
-          } else {
-              try {
-                  client.sendToClient("You must login first using #login <id>. Connection is now terminated.");
-                  client.close();
-              } catch (IOException e) {
-                  System.out.println("Problem while closing the connection: " + e.getMessage());
-              }
-          }
-          return;
-      }
-
-      // If already logged in
-      String loginId = (String) client.getInfo("loginId");
-      System.out.println("Message received: " + message + " from " + loginId);
-      this.sendToAllClients(loginId + "> " + message);
-  }
-*/
-
   
   @Override
   
@@ -160,10 +115,9 @@ public class EchoServer extends AbstractServer
    * This method overrides the one in the superclass.  Called
    * when the server starts listening for connections.
    */
-  protected void serverStarted()
+  public void serverStarted()
   {
-    System.out.println
-      ("Server is listening for clients on port : " + getPort());
+    System.out.println("Server listening for clients on port : " + getPort());
   }
   
   /**
@@ -178,8 +132,11 @@ public class EchoServer extends AbstractServer
   
 	protected void clientConnected(ConnectionToClient client) {
 		System.out.println("A new client has connected to the server.");
-		try {client.sendToClient("Welcome to my chat server !");}
-		catch(IOException e) {System.out.println("Failed to send welcome message: " + e.getMessage());}
+		
+		/*
+		 * try {client.sendToClient("Welcome to my chat server !");}
+		 * catch(IOException e) {System.out.println("Failed to send welcome message: " + e.getMessage());}
+		*/
 	}
 	
   

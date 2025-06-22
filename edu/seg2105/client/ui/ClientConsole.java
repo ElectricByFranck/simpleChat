@@ -25,11 +25,11 @@ public class ClientConsole implements ChatIF
   /**
    * The default port to connect on.
    */
-  final public static int DEFAULT_PORT = 55;
+  final public static int DEFAULT_PORT = 5555;
   
   
   //Assigning the default port number as the user hasn't provide the port number
-  public static int port = DEFAULT_PORT;
+  public static int port;
   
   //Instance variables **********************************************
   
@@ -97,7 +97,9 @@ public class ClientConsole implements ChatIF
         
         	//Causes the client to terminate gracefully.
         	else if(message.equals("#quit")) {
+        		System.out.println("Client is disconnecting from the server and terminating cleanly....");
       	  		client.quit();
+      	  		
         	}
         
         	//Causes the client to disconnect from the server, but not quit.
@@ -109,20 +111,40 @@ public class ClientConsole implements ChatIF
       	  	// Calls the setHost method in the client. Only allowed if the client is logged 
       	  	//off; displays an error message otherwise.
       	  	else if(message.startsWith("#sethost")) {//#sethost <host>
-      	  		int start = message.indexOf("<");
-      	  		int end = message.indexOf(">");
-      	  		try {String newHost = message.substring(start+1,end); client.setHost(newHost);}
-      	  		catch(Exception e) {System.out.println("An error has occur when extracting the substring, verify your message");}  
+      	  		if(client.isConnected()) {
+      	  			System.out.println("You need to disconnect first !!");
+      	  		}else {
+          	  		int start = message.indexOf("<");
+          	  		int end = message.indexOf(">");
+          	  		try {String newHost = message.substring(start+1,end); client.setHost(newHost);System.out.println("Client Host set to: "+ newHost);}
+          	  		catch(Exception e) {System.out.println("An error has occur when extracting the hostname, check your entry");}  	
+      	  		}
       	  	}
       	  	
       	  //Calls the setPort method in the client, with the same constraints as sethost.
       	  else if(message.startsWith("#setport")) {//#setport <port>
-      		  int start = message.indexOf("<");
-      		  int end = message.indexOf(">");
-      		  try {int newPort = Integer.parseInt(message.substring(start+1,end)); client.setPort(newPort);}
-      		  catch(Exception e) {System.out.println("An error has occur when extracting the substring, verify your message");}  
+    	  		if(client.isConnected()) {
+      	  			System.out.println("Disconnecting from current server...");
+      	  			
+      	  			try {
+      	  				client.closeConnection();}
+      	  				catch(IOException ex){System.out.println("Error whille disconnecting: ");}
+      	  			}
+    	  		
+      	  			int start = message.indexOf("<");
+      	  			int end = message.indexOf(">");
+      	  			try {
+      	  				int newPort = Integer.parseInt(message.substring(start+1,end)); 
+      	  				client.setPort(newPort);
+      	  				System.out.println("Client port set to: "+ newPort);
+
+      	  				try {client.openConnection();}
+      	  				catch(IOException ex) { System.out.println("Error while reconnecting: ");}
+      	  			}
+      	  			catch(Exception e) {System.out.println("An error has occur when extracting the port number, check your entry");}  
+
       	  }
-      	  	
+           	  	
       	  //uses the client to connect to the server. Only allowed if the client is not already connected
       	  else if(message.equals("#login")) {
       		  if(!client.isConnected()) {
@@ -176,7 +198,7 @@ public class ClientConsole implements ChatIF
 	  String host;
 	  int port;
 	  
-	// Step 1: Validate login ID (mandatory)
+	//Validate login ID
 	  if (args.length < 1 || args[0].trim().isEmpty()) {
 	      System.out.println("ERROR - No login ID specified. Connection aborted.");
 	      System.exit(1);
@@ -184,7 +206,7 @@ public class ClientConsole implements ChatIF
 	      loginID = args[0].trim();
 	  }
 
-	// Step 2: Assign host (optional)
+	//Assign host
 	  if (args.length >= 2 && !args[1].trim().isEmpty()) {
 	      host = args[1].trim();
 	  } else {
@@ -192,7 +214,7 @@ public class ClientConsole implements ChatIF
 	  }
 	  
 	  
-	// Step 3: Assign port (optional)
+	//Assign port
 	  if (args.length >= 3) {
 	      try {
 	          port = Integer.parseInt(args[2].trim());

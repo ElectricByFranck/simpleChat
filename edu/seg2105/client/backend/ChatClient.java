@@ -55,6 +55,7 @@ public class ChatClient extends AbstractClient
   
   openConnection();//Opening the connection
   }
+ 
   
   
   //Instance methods ************************************************
@@ -73,6 +74,7 @@ public class ChatClient extends AbstractClient
   //Aknowledging the connection and if successfull sending the idd to the server
   protected void connectionEstablished() {
       System.out.println("The connection with the server has been made !");
+      
       try {
           sendToServer("#login <" + login_id + ">");
       } catch (IOException e) {
@@ -102,12 +104,13 @@ public class ChatClient extends AbstractClient
   
   //If the connection with the server is cleanly terminated
   public void connectionClosed() {
-	  System.out.print("The connection to the server is been cleanly terminated");
+	  System.out.println("Connection closed.");
   }
   
   	//IF the connection with the server is unexpectedly interrupted
 	protected void connectionException(Exception exception) {
 		System.out.println("The connection with the server has been unexpectedly interrupt !");
+		quit();
 	}
   
   /**

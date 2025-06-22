@@ -16,7 +16,12 @@ public class ServerConsole implements ChatIF {
 	  //Scanner to read from the console
 	  Scanner fromConsole; 
 	  
-	  private int port = 55;
+	  private static int port;
+	  
+	  /**
+	   * The default port to connect on.
+	   */
+	  final public static int DEFAULT_PORT = 5555;
 	
 
 	  //This method overrides the method in the ChatIF interface.  It displays a message onto the screen.
@@ -30,7 +35,7 @@ public class ServerConsole implements ChatIF {
 		  
 		  // Start listening for client connections
 		  try { server = new EchoServer(port); server.listen();
-		  System.out.println("Server started >>>");
+		  //System.out.println("Server started >>>");
 		  }
 		  
 		  catch(Exception e) {System.out.println("Something went wrong while listement to port :"+ port + e.getMessage());System.exit(1); }
@@ -59,7 +64,7 @@ public class ServerConsole implements ChatIF {
 	        message = fromConsole.nextLine();
 	        
 	        if(!message.startsWith("#")){
-		        server.sendToAllClients(message);
+		        server.sendToAllClients("SERVER MSG> "+ message);
 		        display(message);
 	        }
 	        
@@ -80,10 +85,38 @@ public class ServerConsole implements ChatIF {
 	      
 	        //#setport <port> Calls the setPort method in the server. Only allowed if the server is closed.
 	  	  	else if(message.startsWith("#setport")) {//#setport <port>
-	  	  		int start = message.indexOf("<");
-	  	  		int end = message.indexOf(">");
-	  	  		try {int newPort = Integer.parseInt(message.substring(start+1,end)); server.setPort(newPort);}
-	  	  		catch(Exception e) {System.out.println("An error has occur when extracting the substring, verify your message");}  
+ 	  			int start = message.indexOf("<");
+  	  			int end = message.indexOf(">");
+  	  			
+  	  			try {
+  	  				
+  	  			int newPort = Integer.parseInt(message.substring(start+1,end));
+  	  			
+  	    	  		if(server.isListening()) {
+  	    	  			
+  	      	  			System.out.println("You're switching to a new port!!");
+  	  	    	  		server.close(); //Fully closing the server socket
+  	  	  				server.setPort(newPort);//Changing the port number
+  	  	  				this.port = newPort;
+  	  	  				server.listen(); //Now listening on the new port
+  	  	  				System.out.println("Server Port switched to: "+ newPort);
+  	  	  				System.out.println("Waiting for the completing of adding the new port");
+  	  	  				try {
+  	  	  					Thread.sleep(2000);  // Delay execution for 2 seconds
+  	  	  				} catch (InterruptedException e) {System.out.println("Sleep was interrupted");e.printStackTrace();
+  	  				}
+  	  				
+  	  				System.out.println("Server listening for clients on port : " + server.getPort());
+
+  	      	  			
+  	      	  		}else {
+  	    	  		
+  	  				server.setPort(newPort);//Changing the port number
+  	  				this.port = newPort;
+  	  				System.out.println("Server Port switched to: "+ newPort);}
+  	  			}
+  	  			
+      	  			catch(Exception e) {System.out.println("An error has occur when extracting the port number, check your entry"+e.getMessage());}  
 	  	  	}
 	        
 	        //Causes the server to start listening for new clients. Only valid if the server is stopped.
@@ -93,27 +126,38 @@ public class ServerConsole implements ChatIF {
 	  	  			catch(IOException e) {System.out.println("An error has occur when retart listening "+ e.getMessage());}
 	  	  		}
 	  	  		
-	  	  	System.out.println("The server is already running");
+	  	  	//System.out.println("The server is already running");
 	        }
 	        
 	        //Displays the current port number. 
 	  	  	else if(message.equals("#getport")) {
-	  		  System.out.println("The port number is :"+ server.getPort());
+	  		  System.out.println("The port number is : "+ server.getPort());
 	  	  	}
 
 	        }
 	    } 
 	    catch (Exception ex) 
 	    {
-	      System.out.println
-	        ("Unexpected error while reading from console!");
+	      System.out.println("Unexpected error while reading from console!");
 	    }
 	  }
 	  
 	  public static void main(String[] args) {
-		  int port = 55;
-		  ServerConsole chat = new ServerConsole(port);
-		  chat.accept();
+		  int port;
+
+
+		    try
+		    {
+		      port = Integer.parseInt(args[0]); //Get port from command line
+		    }
+		    catch(Throwable t)
+		    {
+		     	port = DEFAULT_PORT; //Set port to 5555
+		    }
+			  
+			  ServerConsole chat = new ServerConsole(port);
+			  chat.accept();
+		  
 		  
 	  }
 
