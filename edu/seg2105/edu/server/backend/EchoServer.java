@@ -6,6 +6,10 @@ import edu.seg2105.server.common.*;
 
 import ocsf.server.*;
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+
+
 
 /**
  * This class overrides some of the methods in the abstract 
@@ -26,6 +30,7 @@ public class EchoServer extends AbstractServer
    * The default port to listen on.
    */
   final public static int DEFAULT_PORT = 55;
+
   
   //Constructors ****************************************************
   
@@ -48,46 +53,60 @@ public class EchoServer extends AbstractServer
    * @param msg The message received from the client.
    * @param client The connection from which the message originated.
    */
+  @Override
   public void handleMessageFromClient(Object msg, ConnectionToClient client) {
-	    String message = msg.toString();
+      String message = msg.toString();
 
-	    //Handling the login format
-	    if (message.startsWith("#login <") && message.endsWith(">")) {
-	        String loginID = message.substring(8, message.length() - 1).trim();
-	        if (loginID.isEmpty()) {
-	            try {
-	                client.close();
-	            } catch (IOException e) {
-	                System.out.println("Error closing connection.");
-	            }
-	            return;
-	        }
-	        
-	        //Setting the client information
-	        client.setInfo("loginID", loginID);
-	        System.out.println("Client logged in as: " + loginID);
-	        return;
-	    }
+      // Check if client is not logged in
+      if (client.getInfo("loginId") == null) {
+          if (message.startsWith("#login ")) {
+              String loginId = message.substring(7).trim();
 
-	    //Retrieving the client information to identify the user
-	    String loginID = (String) client.getInfo("loginID");
-	    if (loginID == null) {
-	        System.out.println("Client has not logged in. Closing connection.");
-	        try {
-	            client.close();
-	        } catch (IOException e) {
-	            System.out.println("Error closing connection.");
-	        }
-	        return;
-	    }
+              if (loginId.isEmpty()) {
+                  try {
+                      client.sendToClient("Login ID cannot be empty. Connection terminated.");
+                      client.close();
+                  } catch (IOException e) {
+                      System.out.println("Issues occur during closing the connection: " + e.getMessage());
+                  }
+                  return;
+              }
 
-	    //Displaying the message in the server UI
-	    System.out.println(message + " from " + loginID);
-	    
-	    //Echoeing the message to all clients with a specific format
-	    sendToAllClients(loginID + "> " + message);
+              // Save login ID directly in the client's info
+              client.setInfo("loginId", loginId);
+              System.out.println("Client logged in with the ID: " + loginId);
+
+              try {
+                  client.sendToClient("Welcome " + loginId + "!");
+              } catch (IOException e) {
+                  System.out.println("Error while sending the welcome message: " + e.getMessage());
+              }
+          } else {
+              try {
+                  client.sendToClient("You must login first using #login <id>. Connection is now terminated.");
+                  client.close();
+              } catch (IOException e) {
+                  System.out.println("Problem while closing the connection: " + e.getMessage());
+              }
+          }
+          return;
+      }
+
+      // If already logged in
+      String loginId = (String) client.getInfo("loginId");
+      System.out.println("Message received: " + message + " from " + loginId);
+      this.sendToAllClients(loginId + "> " + message);
+  }
+
+
+  
+  @Override
+  
+  //Changing the behaviour of this method so when the client is disconnected, he get a personalized message
+  synchronized protected void clientDisconnected(ConnectionToClient client) {
+	    String loginId = (String) client.getInfo("loginId");
+	    System.out.println("Client disconnected: " + loginId);
 	}
-
   
   
   /**
@@ -97,7 +116,7 @@ public class EchoServer extends AbstractServer
   protected void serverStarted()
   {
     System.out.println
-      ("Server is now listening on port : " + getPort());
+      ("Server is listening for clients on port : " + getPort());
   }
   
   /**
@@ -116,9 +135,6 @@ public class EchoServer extends AbstractServer
 		catch(IOException e) {System.out.println("Failed to send welcome message: " + e.getMessage());}
 	}
 	
-	synchronized protected void clientDisconnected(ConnectionToClient client) {
-		System.out.println("The Client is disconnected from port number" + getPort());
-	}
   
   
   //Class methods ***************************************************
