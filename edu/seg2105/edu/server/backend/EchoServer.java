@@ -130,7 +130,7 @@ public class EchoServer extends AbstractServer
   }
   
 	protected void clientConnected(ConnectionToClient client) {
-		System.out.println("The Client is connected on port number : " + getPort());
+		System.out.println("A new client has connected to the server.");
 		try {client.sendToClient("Welcome to my chat server !");}
 		catch(IOException e) {System.out.println("Failed to send welcome message: " + e.getMessage());}
 	}

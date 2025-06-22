@@ -67,7 +67,7 @@ public class ClientConsole implements ChatIF
 
     catch(IOException exception) 
     {
-      System.out.println("Error: Can't setup connection!" + " Terminating client. " + exception.getMessage());
+      System.out.println("ERROR - Can't setup connection! Terminating client.");
       System.exit(1);
     }
     
@@ -178,7 +178,7 @@ public class ClientConsole implements ChatIF
 	  
 	// Step 1: Validate login ID (mandatory)
 	  if (args.length < 1 || args[0].trim().isEmpty()) {
-	      System.out.println("Error: Login ID is required.\nUsage: java ClientConsole <loginID> [host] [port]");
+	      System.out.println("ERROR - No login ID specified. Connection aborted.");
 	      System.exit(1);
 	  } else {
 	      loginID = args[0].trim();
