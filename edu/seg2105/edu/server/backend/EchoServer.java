@@ -53,6 +53,53 @@ public class EchoServer extends AbstractServer
    * @param msg The message received from the client.
    * @param client The connection from which the message originated.
    */
+  
+  @Override
+  public void handleMessageFromClient(Object msg, ConnectionToClient client) {
+      String message = msg.toString().trim();
+
+      // Check if client is not yet identified
+      if (client.getInfo("loginId") == null) {
+          if (message.startsWith("#login <") && message.endsWith(">")) {
+              String loginId = message.substring(8, message.length() - 1).trim();
+
+              if (loginId.isEmpty()) {
+                  try {
+                      client.sendToClient("Login ID cannot be empty. Connection closing.");
+                      client.close();
+                  } catch (IOException e) {
+                      System.out.println("Error closing connection: " + e.getMessage());
+                  }
+                  return;
+              }
+
+              // Set login info
+              client.setInfo("loginId", loginId);
+              System.out.println(loginId + " has logged on.");
+              try {
+                  client.sendToClient("Welcome " + loginId + "!");
+              } catch (IOException e) {
+                  System.out.println("Failed to send welcome message: " + e.getMessage());
+              }
+
+          } else {
+              try {
+                  client.sendToClient("ERROR: First message must be #login <id>. Disconnecting.");
+                  client.close();
+              } catch (IOException e) {
+                  System.out.println("Error disconnecting client: " + e.getMessage());
+              }
+          }
+          return;
+      }
+
+      // Normal message handling
+      String loginId = (String) client.getInfo("loginId");
+      System.out.println("Message received: " + message + " from " + loginId);
+      sendToAllClients(loginId + "> " + message);
+  }
+
+  /*
   @Override
   public void handleMessageFromClient(Object msg, ConnectionToClient client) {
       String message = msg.toString();
@@ -97,7 +144,7 @@ public class EchoServer extends AbstractServer
       System.out.println("Message received: " + message + " from " + loginId);
       this.sendToAllClients(loginId + "> " + message);
   }
-
+*/
 
   
   @Override

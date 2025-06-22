@@ -73,7 +73,6 @@ public class ChatClient extends AbstractClient
   //Aknowledging the connection and if successfull sending the idd to the server
   protected void connectionEstablished() {
       System.out.println("The connection with the server has been made !");
-      
       try {
           sendToServer("#login <" + login_id + ">");
       } catch (IOException e) {
@@ -81,6 +80,7 @@ public class ChatClient extends AbstractClient
           quit();
       }
   }
+
 
 
   /**
