@@ -45,6 +45,7 @@ public class ClientConsole implements ChatIF
    */
   Scanner fromConsole; 
 
+  private String login_id;
   
   //Constructors ****************************************************
 
@@ -54,17 +55,19 @@ public class ClientConsole implements ChatIF
    * @param host The host to connect to.
    * @param port The port to connect on.
    */
-  public ClientConsole(String host, int port) 
+  public ClientConsole(String host, int port, String loginId) 
   {
+	  this.login_id = loginId;
+	  
     try 
     {
-      client= new ChatClient(host, port, this);
+      client= new ChatClient(host, port,this, login_id);
       
     } 
 
     catch(IOException exception) 
     {
-      System.out.println("Error: Can't setup connection!" + " Terminating client." + exception.getMessage());
+      System.out.println("Error: Can't setup connection!" + " Terminating client. " + exception.getMessage());
       System.exit(1);
     }
     
@@ -88,9 +91,8 @@ public class ClientConsole implements ChatIF
         message = fromConsole.nextLine();
         
         	if(!message.startsWith("#")) {
-        		//client.handleMessageFromClientUI(message);
-        		display(message);
-        		//System.out.println("CLIENT MSG> "+message);
+        		client.handleMessageFromClientUI(message);
+        		//System.out.println("CLIENT MSG> " + message);
         	}
         
         	//Causes the client to terminate gracefully.
@@ -156,7 +158,7 @@ public class ClientConsole implements ChatIF
    */
   public void display(String message) 
   {
-    System.out.println("SERVER MSG> " + message);
+	  System.out.println(message);
   }
 
   
@@ -170,30 +172,40 @@ public class ClientConsole implements ChatIF
 
   public static void main(String[] args) 
   {
-    String host = "";
+	  String loginID = null;
+	  String host;
+	  int port;
+	  
+	// Step 1: Validate login ID (mandatory)
+	  if (args.length < 1 || args[0].trim().isEmpty()) {
+	      System.out.println("Error: Login ID is required.\nUsage: java ClientConsole <loginID> [host] [port]");
+	      System.exit(1);
+	  } else {
+	      loginID = args[0].trim();
+	  }
 
-    	
-    	//Handling the error case where the user doesn't provide the host name
-    	if(args.length>0) { 
-    		try {host = args[0];}
-    		catch(ArrayIndexOutOfBoundsException e) {
-    			System.out.println(e.getMessage() + "Host hasn't been provided, Now using the default host name");
-    			
-    			//Assigning the default host name as the user hasn't provide the host name
-    			host = "localhost";}
-    		}
-    		
-    	//Handling the error case where the user doesn't provide the port number
-    	if(args.length>1) {
-      		try { port = Integer.parseInt(args[1].trim()); }
-      		catch(Exception e){ 
-      			System.out.println(e.getMessage() + "The format used isn't accepted, Now using the default port number"); 
-      			
-      			}
-      	}
+	// Step 2: Assign host (optional)
+	  if (args.length >= 2 && !args[1].trim().isEmpty()) {
+	      host = args[1].trim();
+	  } else {
+	      host = "localhost"; // default
+	  }
+	  
+	  
+	// Step 3: Assign port (optional)
+	  if (args.length >= 3) {
+	      try {
+	          port = Integer.parseInt(args[2].trim());
+	      } catch (NumberFormatException e) {
+	          System.out.println("Warning: Invalid port format. Using default port " + DEFAULT_PORT + ".");
+	          port = DEFAULT_PORT;
+	      }
+	  } else {
+	      port = DEFAULT_PORT; // default
+	  }
 
-    ClientConsole chat= new ClientConsole(host, port);
-    chat.accept();  //Wait for console data
+  ClientConsole chat = new ClientConsole(host, port, loginID);
+  chat.accept(); //Wait for console data
 
   }
 }

@@ -30,6 +30,7 @@ public class ChatClient extends AbstractClient
   
   String host = "";
   int port;
+  private String login_id;
 
   
   //Constructors ****************************************************
@@ -42,15 +43,19 @@ public class ChatClient extends AbstractClient
    * @param clientUI The interface type variable.
    */
   
-  public ChatClient(String host, int port, ChatIF clientUI) 
-    throws IOException 
-  {
+  public ChatClient(String host, int port, ChatIF clientUI, String loginId) throws IOException{
     super(host, port); //Call the superclass constructor
+    this.login_id = loginId;
     this.clientUI = clientUI;
-    openConnection();
-
+  
+  if(loginId==null||loginId.trim().isEmpty()) {
+	  System.out.println("Login ID is required. Terminating.");
+	  System.exit(1);
   }
-
+  
+  openConnection();//Opening the connection
+  }
+  
   
   //Instance methods ************************************************
     
@@ -59,14 +64,23 @@ public class ChatClient extends AbstractClient
    *
    * @param msg The message from the server.
    */
-  public void handleMessageFromServer(Object msg) 
-  {
-	  clientUI.display(msg.toString());
-  }
-  
-	protected void connectionEstablished() {
-		System.out.println("The connection with the server has been made !");
+  public void handleMessageFromServer(Object msg) {
+	    clientUI.display(msg.toString()); // Displaying message from the server 
 	}
+
+  
+  @Override
+  //Aknowledging the connection and if successfull sending the idd to the server
+  protected void connectionEstablished() {
+      System.out.println("The connection with the server has been made !");
+      
+      try {
+          sendToServer("#login <" + login_id + ">");
+      } catch (IOException e) {
+          clientUI.display("Failed to send login ID to server.");
+          quit();
+      }
+  }
 
 
   /**
@@ -88,7 +102,7 @@ public class ChatClient extends AbstractClient
   
   //If the connection with the server is cleanly terminated
   public void connectionClosed() {
-	  System.out.print("The server has been disconnected");
+	  System.out.print("The connection to the server is been cleanly terminated");
   }
   
   	//IF the connection with the server is unexpectedly interrupted

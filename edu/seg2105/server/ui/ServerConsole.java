@@ -21,7 +21,7 @@ public class ServerConsole implements ChatIF {
 
 	  //This method overrides the method in the ChatIF interface.  It displays a message onto the screen.
 	  public void display(String message) {
-		  System.out.println("CLIENT MSG> " + message);
+		  System.out.println("SERVER MSG> " + message);
 	  }
 	  
 	  
@@ -92,6 +92,8 @@ public class ServerConsole implements ChatIF {
 	  	  			try{server.listen();}
 	  	  			catch(IOException e) {System.out.println("An error has occur when retart listening "+ e.getMessage());}
 	  	  		}
+	  	  		
+	  	  	System.out.println("The server is already running");
 	        }
 	        
 	        //Displays the current port number. 

@@ -49,9 +49,45 @@ public class EchoServer extends AbstractServer
    * @param client The connection from which the message originated.
    */
   public void handleMessageFromClient(Object msg, ConnectionToClient client) {
-    System.out.println("Message received: " + msg + " from " + client);
-    this.sendToAllClients(msg);
-  }
+	    String message = msg.toString();
+
+	    //Handling the login format
+	    if (message.startsWith("#login <") && message.endsWith(">")) {
+	        String loginID = message.substring(8, message.length() - 1).trim();
+	        if (loginID.isEmpty()) {
+	            try {
+	                client.close();
+	            } catch (IOException e) {
+	                System.out.println("Error closing connection.");
+	            }
+	            return;
+	        }
+	        
+	        //Setting the client information
+	        client.setInfo("loginID", loginID);
+	        System.out.println("Client logged in as: " + loginID);
+	        return;
+	    }
+
+	    //Retrieving the client information to identify the user
+	    String loginID = (String) client.getInfo("loginID");
+	    if (loginID == null) {
+	        System.out.println("Client has not logged in. Closing connection.");
+	        try {
+	            client.close();
+	        } catch (IOException e) {
+	            System.out.println("Error closing connection.");
+	        }
+	        return;
+	    }
+
+	    //Displaying the message in the server UI
+	    System.out.println(message + " from " + loginID);
+	    
+	    //Echoeing the message to all clients with a specific format
+	    sendToAllClients(loginID + "> " + message);
+	}
+
   
   
   /**

@@ -3,6 +3,7 @@
 	<name>simpleChat</name>
 	<comment></comment>
 	<projects>
+		<project>OCSF</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
