@@ -67,6 +67,7 @@ public class EchoServer extends AbstractServer
 
               if (actualLoginId.isEmpty()) {
                   try {
+                	  //Trying to send an error message to the client
                       client.sendToClient("Login ID cannot be empty. Connection closing.");
                       client.close();
                   } catch (IOException e) {
@@ -75,11 +76,12 @@ public class EchoServer extends AbstractServer
                   return;
               }
 
-              // Set login info
+              // Setting login info
               client.setInfo("loginId", actualLoginId);
               System.out.println(actualLoginId + " has logged on.");
               
               try {
+            	  
                   //client.sendToClient("Welcome " + actualLoginId + "!");
                   client.sendToClient(actualLoginId + " has logged on.");
               } catch (IOException e) {
@@ -87,9 +89,10 @@ public class EchoServer extends AbstractServer
               }
 
           } else {
-              try {
+              try {//Trying to send an error message to the client as the first message must be specify
                   client.sendToClient("ERROR: First message must be #login <id>. Disconnecting.");
-                  client.close();
+                  
+                  client.close();//Closing the connection attempt
               } catch (IOException e) {
                   System.out.println("Error disconnecting client: " + e.getMessage());
               }
@@ -155,7 +158,7 @@ public class EchoServer extends AbstractServer
 	  int port = 0; //Port to listen on
 
     try
-    {
+    {//Trying convert the client input into an integer
       port = Integer.parseInt(args[0]); //Get port from command line
     }
     catch(Throwable t)
@@ -172,6 +175,7 @@ public class EchoServer extends AbstractServer
     } 
     catch (Exception ex) 
     {
+    	//Handling error case with personalized message
       System.out.println("ERROR - Could not listen for clients! " + ex.getMessage());
     }
   }

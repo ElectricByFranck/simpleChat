@@ -27,7 +27,6 @@ public class ChatClient extends AbstractClient
    * the display method in the client.
    */
   ChatIF clientUI; 
-  
   String host = "";
   int port;
   private String login_id;
@@ -76,9 +75,13 @@ public class ChatClient extends AbstractClient
       System.out.println("The connection with the server has been made !");
       
       try {
+    	  //Sending the login message to the server
           sendToServer("#login <" + login_id + ">");
       } catch (IOException e) {
+    	  //Handling error case
           clientUI.display("Failed to send login ID to server.");
+          
+          //Quitting if the connection isn't established or the message not sent
           quit();
       }
   }

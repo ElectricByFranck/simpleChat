@@ -16,6 +16,7 @@ public class ServerConsole implements ChatIF {
 	  //Scanner to read from the console
 	  Scanner fromConsole; 
 	  
+	  //Class variable
 	  private static int port;
 	  
 	  /**
@@ -29,7 +30,7 @@ public class ServerConsole implements ChatIF {
 		  System.out.println("SERVER MSG> " + message);
 	  }
 	  
-	  
+	  //Constructor
 	  public ServerConsole(int port) {
 		  this.port = port;
 		  
@@ -46,10 +47,13 @@ public class ServerConsole implements ChatIF {
 	  
 	  public void quit() {
 		    try {
+		    	//Broadcasting a message to the connected clients
 		        server.sendToAllClients("Server is shutting down...");
 		        server.close(); // Gracefully close all connections and the server
 		        System.out.println("Server has shut down successfully.");
+		        
 		    } catch (IOException e) {
+		    		//Handling error case with specific message
 		        System.out.println("Error shutting down server: " + e.getMessage());
 		    }
 		    System.exit(0);
@@ -61,8 +65,11 @@ public class ServerConsole implements ChatIF {
 	    	String message;
 
 	    	while (true){
+	    		
+	    	//Getting inputs from the console
 	        message = fromConsole.nextLine();
 	        
+	        //Looking at special commands
 	        if(!message.startsWith("#")){
 		        server.sendToAllClients("SERVER MSG> "+ message);
 		        display(message);
@@ -102,7 +109,7 @@ public class ServerConsole implements ChatIF {
   	  	  				System.out.println("Server Port switched to: "+ newPort);
   	  	  				System.out.println("Waiting for the completing of adding the new port");
   	  	  				try {
-  	  	  					Thread.sleep(2000);  // Delay execution for 2 seconds
+  	  	  					Thread.sleep(2000);  // Delay execution for 2 seconds as the message must come up after connectionclosed() has runned and send his message
   	  	  				} catch (InterruptedException e) {System.out.println("Sleep was interrupted");e.printStackTrace();
   	  				}
   	  				
@@ -136,8 +143,8 @@ public class ServerConsole implements ChatIF {
 
 	        }
 	    } 
-	    catch (Exception ex) 
-	    {
+	    catch (Exception ex) {
+	    	//Handling the error message
 	      System.out.println("Unexpected error while reading from console!");
 	    }
 	  }
@@ -154,7 +161,7 @@ public class ServerConsole implements ChatIF {
 		    {
 		     	port = DEFAULT_PORT; //Set port to 5555
 		    }
-			  
+			  //	Creating an instance of ServerConsole 
 			  ServerConsole chat = new ServerConsole(port);
 			  chat.accept();
 		  

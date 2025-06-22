@@ -203,10 +203,12 @@ public class ClientConsole implements ChatIF
 	      System.out.println("ERROR - No login ID specified. Connection aborted.");
 	      System.exit(1);
 	  } else {
+		  
+		  //Assigning the loginId with the argument provided
 	      loginID = args[0].trim();
 	  }
 
-	//Assign host
+	//Assigning hostname
 	  if (args.length >= 2 && !args[1].trim().isEmpty()) {
 	      host = args[1].trim();
 	  } else {
@@ -214,7 +216,7 @@ public class ClientConsole implements ChatIF
 	  }
 	  
 	  
-	//Assign port
+	//Assign port number
 	  if (args.length >= 3) {
 	      try {
 	          port = Integer.parseInt(args[2].trim());
@@ -223,9 +225,10 @@ public class ClientConsole implements ChatIF
 	          port = DEFAULT_PORT;
 	      }
 	  } else {
-	      port = DEFAULT_PORT; // default
+	      port = DEFAULT_PORT; // default port number
 	  }
 
+	  //Starting a new connection
   ClientConsole chat = new ClientConsole(host, port, loginID);
   chat.accept(); //Wait for console data
 
